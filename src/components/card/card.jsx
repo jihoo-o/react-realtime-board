@@ -2,10 +2,10 @@ import React from 'react';
 import styles from './card.module.css';
 
 const styleTheme = {
-    dark: styles.dark,
-    light: styles.light,
-    colorful: styles.colorful,
-    default: styles.light,
+    Dark: styles.dark,
+    Light: styles.light,
+    Colorful: styles.colorful,
+    Default: styles.light,
 };
 
 const DEFAULT_IMAGE = '/images/default_logo.png';
