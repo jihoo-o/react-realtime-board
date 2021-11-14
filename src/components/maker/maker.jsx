@@ -6,55 +6,23 @@ import styles from './maker.module.css';
 import Editor from '../editor/editor';
 import Preview from '../preview/preview';
 
-const Maker = ({ FileInput, authService }) => {
+const Maker = ({ FileInput, authService, cardRepository }) => {
+    const historyState = useHistory().state;
     const [cards, setCards] = useState({
-        1: {
-            id: '1',
-            name: 'Liz',
-            company: 'toss',
-            theme: 'Dark',
-            title: 'Software Enginner',
-            email: 'liza@gmail.com',
-            message: 'hi',
-            fileName: 'alalal',
-            fileUrl: null,
-        },
+        // 1: {
+        //     id: '1',
+        //     name: 'Liz',
+        //     company: 'toss',
+        //     theme: 'Dark',
+        //     title: 'Software Enginner',
+        //     email: 'liza@gmail.com',
+        //     message: 'hi',
+        //     fileName: 'alalal',
+        //     fileUrl: null,
+        // },
     });
-    // const [cards, setCards] = useState([
-    //     {
-    //         id: '1',
-    //         name: 'Liz',
-    //         company: 'toss',
-    //         theme: 'Dark',
-    //         title: 'Software Enginner',
-    //         email: 'liza@gmail.com',
-    //         message: 'hi',
-    //         fileName: 'alalal',
-    //         fileUrl: null,
-    //     },
-    //     {
-    //         id: '2',
-    //         name: 'Liz2',
-    //         company: 'toss',
-    //         theme: 'Light',
-    //         title: 'Software Enginner',
-    //         email: 'liza@gmail.com',
-    //         message: 'hi',
-    //         fileName: 'alalal',
-    //         fileUrl: 'liz.png',
-    //     },
-    //     {
-    //         id: '3',
-    //         name: 'Liz3',
-    //         company: 'toss',
-    //         theme: 'Colorful',
-    //         title: 'Software Enginner',
-    //         email: 'liza@gmail.com',
-    //         message: 'hi',
-    //         fileName: 'alalal',
-    //         fileUrl: null,
-    //     },
-    // ]);
+    const [userId, setUserId] = useState(historyState && historyState.id);
+
     const history = useHistory();
 
     const onLogout = () => {
@@ -65,9 +33,25 @@ const Maker = ({ FileInput, authService }) => {
             });
     };
 
+    // firebase sync 관련
+    useEffect(() => {
+        if (!userId) {
+            return;
+        }
+        const stopSync = cardRepository.syncCards(userId, (cards) => {
+            setCards(cards);
+        });
+        return () => {
+            stopSync();
+        };
+    }, [userId]);
+
+    // 로그인 관련
     useEffect(() => {
         authService.onAuthChange((user) => {
-            if (!user) {
+            if (user) {
+                setUserId(user.uid);
+            } else {
                 history.push('/');
             }
         });
@@ -79,6 +63,7 @@ const Maker = ({ FileInput, authService }) => {
             updated[card.id] = card;
             return updated;
         });
+        cardRepository.saveCard(userId, card);
     };
 
     const deleteCard = (card) => {
@@ -87,6 +72,7 @@ const Maker = ({ FileInput, authService }) => {
             delete updated[card.id];
             return updated;
         });
+        cardRepository.removeCard(userId, card);
     };
 
     return (
