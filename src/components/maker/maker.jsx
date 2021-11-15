@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import Footer from '../footer/footer';
 import Header from '../header/header';
@@ -8,30 +8,15 @@ import Preview from '../preview/preview';
 
 const Maker = ({ FileInput, authService, cardRepository }) => {
     const historyState = useHistory().state;
-    const [cards, setCards] = useState({
-        // 1: {
-        //     id: '1',
-        //     name: 'Liz',
-        //     company: 'toss',
-        //     theme: 'Dark',
-        //     title: 'Software Enginner',
-        //     email: 'liza@gmail.com',
-        //     message: 'hi',
-        //     fileName: 'alalal',
-        //     fileUrl: null,
-        // },
-    });
+    const [cards, setCards] = useState({});
     const [userId, setUserId] = useState(historyState && historyState.id);
 
     const history = useHistory();
 
-    const onLogout = () => {
+    const onLogout = useCallback(() => {
         authService //
-            .logout() //
-            .then(() => {
-                history.push('/');
-            });
-    };
+            .logout();
+    }, [authService]);
 
     // firebase sync 관련
     useEffect(() => {
@@ -44,7 +29,7 @@ const Maker = ({ FileInput, authService, cardRepository }) => {
         return () => {
             stopSync();
         };
-    }, [userId]);
+    }, [userId, cardRepository]);
 
     // 로그인 관련
     useEffect(() => {
@@ -55,7 +40,7 @@ const Maker = ({ FileInput, authService, cardRepository }) => {
                 history.push('/');
             }
         });
-    });
+    }, [userId, authService, history]);
 
     const createOrUpdateCard = (card) => {
         setCards((cards) => {

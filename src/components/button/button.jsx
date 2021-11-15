@@ -1,11 +1,11 @@
 import styles from './button.module.css';
 
-import React from 'react';
+import React, { memo } from 'react';
 
-const Button = ({ name, onClick }) => (
+const Button = memo(({ name, onClick }) => (
     <button className={styles.button} onClick={onClick}>
         {name}
     </button>
-);
+));
 
 export default Button;
