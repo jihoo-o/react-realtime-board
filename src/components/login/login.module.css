@@ -1,0 +1,50 @@
+.loginBox {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 50%;
+    height: 50%;
+    max-width: 50rem;
+    background: #8a7c78;
+    opacity: 0.6;
+}
+
+.loginTitle {
+    font-size: 7vw;
+    text-align: center;
+    width: 100%;
+    color: red;
+    margin: 0;
+}
+
+.loginBtns {
+    display: flex;
+}
+
+.loginBtn {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    height: 3rem;
+    width: 3rem;
+    padding: 0;
+    margin-right: 1rem;
+    border-radius: 50%;
+    border: 0;
+}
+
+.loginBtn:hover {
+    cursor: pointer;
+}
+
+.loginIcon {
+    font-size: 2em;
+}
+
+@media screen and (max-width: 640px) {
+    .loginBox {
+        width: 100%;
+    }
+}
