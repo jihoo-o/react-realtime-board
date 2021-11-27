@@ -1,0 +1,29 @@
+@value primaryBlueDark, primaryWhite from '../../common/colors.css';
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 5rem;
+    width: 100%;
+    padding: 0 5rem;
+    background-color: primaryBlueDark;
+}
+
+.headerText {
+    color: primaryWhite;
+    margin: 0;
+}
+
+.logoutBtn {
+    width: 4rem;
+    height: 1.5rem;
+    font-size: 0.8em;
+    font-weight: bold;
+    border: 0;
+    border-radius: 2px;
+}
+
+.logoutBtn:hover {
+    cursor: pointer;
+}

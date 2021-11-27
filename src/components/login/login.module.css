@@ -1,3 +1,5 @@
+@value primaryWhite, primaryBlack from '../../common/colors.css';
+
 .loginBox {
     display: flex;
     flex-direction: column;
@@ -6,15 +8,15 @@
     width: 50%;
     height: 50%;
     max-width: 50rem;
-    background: #8a7c78;
-    opacity: 0.6;
+    border-radius: 10px;
+    background: primaryWhite;
 }
 
 .loginTitle {
     font-size: 7vw;
     text-align: center;
     width: 100%;
-    color: red;
+    color: primaryBlack;
     margin: 0;
 }
 
