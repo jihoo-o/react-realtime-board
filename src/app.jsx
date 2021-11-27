@@ -5,7 +5,7 @@ import Header from './components/header/header';
 import Login from './components/login/login';
 import Maker from './components/maker/maker';
 
-function App({ authService }) {
+function App({ authService, database }) {
     return (
         <div className={styles.appContainer}>
             <BrowserRouter>
@@ -25,7 +25,10 @@ function App({ authService }) {
                         element={
                             <>
                                 <Header authService={authService} />
-                                <Maker authService={authService} />
+                                <Maker
+                                    authService={authService}
+                                    database={database}
+                                />
                             </>
                         }
                     />
