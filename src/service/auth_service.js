@@ -2,9 +2,11 @@ import { firebaseApp } from './firebase';
 import {
     getAuth,
     signInWithPopup,
+    signOut,
     GoogleAuthProvider,
     TwitterAuthProvider,
     GithubAuthProvider,
+    onAuthStateChanged,
 } from 'firebase/auth';
 
 class AuthService {
@@ -18,7 +20,16 @@ class AuthService {
             window.alert('this is expected provider. please use another');
             return;
         }
+
         return signInWithPopup(this.auth, new authProvider());
+    }
+
+    logout() {
+        return signOut(this.auth);
+    }
+
+    onAuthChange(onUserChange) {
+        onAuthStateChanged(this.auth, onUserChange);
     }
 
     getProvider(providerName) {

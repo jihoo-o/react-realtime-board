@@ -1,10 +1,20 @@
 import React from 'react';
+import { useNavigate } from 'react-router';
 import styles from './login.module.css';
 
 const Login = ({ authService }) => {
+    const navigate = useNavigate();
+
     const onLogin = (e) => {
-        authService.login(e.target.dataset.provider);
+        authService //
+            .login(e.target.dataset.provider) //
+            .then((result) => {
+                navigate('/maker', {
+                    state: { id: result.user.uid },
+                });
+            });
     };
+
     return (
         <div className={styles.loginBox}>
             <h1 className={styles.loginTitle}>LOGIN</h1>
