@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import styles from './app.module.css';
 import Header from './components/header/header';
 import Login from './components/login/login';
-import Maker from './components/maker/maker';
+import Board from './components/board/board';
 
 function App({ authService, database }) {
     return (
@@ -21,11 +21,11 @@ function App({ authService, database }) {
                         }
                     />
                     <Route
-                        path="/maker"
+                        path="/board"
                         element={
                             <>
                                 <Header authService={authService} />
-                                <Maker
+                                <Board
                                     authService={authService}
                                     database={database}
                                 />

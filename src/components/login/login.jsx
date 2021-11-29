@@ -9,7 +9,7 @@ const Login = ({ authService }) => {
         authService //
             .login(e.target.dataset.provider) //
             .then((result) => {
-                navigate('/maker', {
+                navigate('/board', {
                     state: { id: result.user.uid },
                 });
             });
