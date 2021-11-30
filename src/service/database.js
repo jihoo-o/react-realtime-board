@@ -1,14 +1,23 @@
-import { getDatabase, ref, set } from 'firebase/database';
+import { firebaseApp } from './firebase';
+import { getDatabase, ref, set, remove, onValue } from 'firebase/database';
 
 class Database {
     constructor() {
-        this.db = getDatabase();
+        this.db = getDatabase(firebaseApp);
     }
 
-    writeData(userId, text) {
-        set(ref(this.db, userId), {
-            text,
+    saveMessage(userId, message) {
+        set(ref(this.db, `${userId}/messages/${message.id}`), message);
+    }
+
+    getMessage(userId, onUpdate) {
+        onValue(ref(this.db, `${userId}/messages`), (snapshot) => {
+            const messages = snapshot.val();
+            messages && onUpdate(messages);
         });
+    }
+    removeMessage(userId, messageId) {
+        remove(ref(this.db, `${userId}/messages/${messageId}`));
     }
 }
 

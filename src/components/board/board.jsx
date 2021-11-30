@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import MessageBox from '../messageBox/messageBox';
 import styles from './board.module.css';
@@ -6,7 +6,7 @@ import styles from './board.module.css';
 const Board = ({ authService, database }) => {
     const location = useLocation();
     const [userId, setUserId] = useState(location.state && location.state.id);
-    const [message, setMessage] = useState({});
+    const [messages, setMessages] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,38 +16,60 @@ const Board = ({ authService, database }) => {
                     navigate('/');
                 } else {
                     setUserId(user.uid);
+                    database.getMessage(userId, (messages) => {
+                        setMessages(messages);
+                    });
                 }
             });
-    }, [authService]);
+    }, [userId, authService, database]);
 
-    // const onBoardChange = (e) => {
-    //     database //
-    //         .writeData(userId, e.target.value);
-    // };
-
-    const onBoardClick = (e) => {
+    const handleBoardClick = (e) => {
         const id = Date.now();
         // TODO
         // fix the way getting rect whenever the board clicked
         const rect = e.target.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        setMessage((message) => {
-            const updated = { ...message };
-            updated[id] = {
-                id,
-                x,
-                y,
-                text: null,
-            };
+        const message = {
+            id,
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top,
+            text: '',
+        };
+        setMessages((messages) => {
+            const updated = { ...messages };
+            updated[id] = message;
             return updated;
         });
+        database.saveMessage(userId, message);
     };
 
+    const handleMessageClick = useCallback((messageId) => {
+        setMessages((messages) => {
+            const updated = { ...messages };
+            delete updated[messageId];
+            return updated;
+        });
+        database.removeMessage(userId, messageId);
+    });
+
+    const handleMessageChange = useCallback((messageId, text) => {
+        const changedMessage = { ...messages[messageId], text };
+        setMessages((messages) => {
+            const updated = { ...messages };
+            updated[messageId] = changedMessage;
+            return updated;
+        });
+        database.saveMessage(userId, changedMessage);
+    });
+
     return (
-        <div className={styles.board} onClick={onBoardClick}>
-            {Object.keys(message).map((key) => (
-                <MessageBox key={key} message={message[key]} />
+        <div className={styles.board} onClick={handleBoardClick}>
+            {Object.keys(messages).map((key) => (
+                <MessageBox
+                    key={key}
+                    message={messages[key]}
+                    onMessageClick={handleMessageClick}
+                    onMessageChange={handleMessageChange}
+                />
             ))}
         </div>
     );
