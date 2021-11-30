@@ -13,7 +13,7 @@ class Database {
     getMessage(userId, onUpdate) {
         onValue(ref(this.db, `${userId}/messages`), (snapshot) => {
             const messages = snapshot.val();
-            messages && onUpdate(messages);
+            messages ? onUpdate(messages) : onUpdate({});
         });
     }
     removeMessage(userId, messageId) {

@@ -63,6 +63,7 @@ const Board = ({ authService, database }) => {
 
     return (
         <div className={styles.board} onClick={handleBoardClick}>
+            {console.log(messages)}
             {Object.keys(messages).map((key) => (
                 <MessageBox
                     key={key}
