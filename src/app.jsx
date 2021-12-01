@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import styles from './app.module.css';
 import Header from './components/header/header';
 import Login from './components/login/login';
 import Board from './components/board/board';
 
-function App({ authService, database }) {
+function App({ authService, database, imageUploader }) {
     return (
         <div className={styles.appContainer}>
             <BrowserRouter>
@@ -25,9 +25,11 @@ function App({ authService, database }) {
                         element={
                             <>
                                 <Header authService={authService} />
+
                                 <Board
                                     authService={authService}
                                     database={database}
+                                    imageUploader={imageUploader}
                                 />
                             </>
                         }
