@@ -29,7 +29,7 @@ class AuthService {
     }
 
     onAuthChange(onUserChange) {
-        onAuthStateChanged(this.auth, onUserChange);
+        return onAuthStateChanged(this.auth, onUserChange);
     }
 
     getProvider(providerName) {

@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import { MESSAGE_BOX } from 'common/constant';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './message_box.module.css';
 
 const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
+    const [itemType, setItemType] = useState(MESSAGE_BOX);
     const inputRef = useRef();
     const { id, x, y, text } = message;
 
@@ -25,10 +27,7 @@ const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
                 cursor: 'auto',
             }}
             onClick={(e) => {
-                e.stopPropagation();
-                if (e.metaKey) {
-                    onMessageClick(e.target.id);
-                }
+                itemType && onMessageClick(e, itemType);
             }}
             onInput={(e) => {
                 onMessageChange(e.target.id, e.target.value);
@@ -36,12 +35,17 @@ const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
                 e.target.style.height = e.target.scrollHeight + 'px';
             }}
             onMouseMove={(e) => {
-                if (!e.metaKey) {
+                if (e.metaKey) {
                     inputRef.current.style.cursor = 'auto';
-                    return;
+                    inputRef.current.style.cursor =
+                        'url(/images/outline_delete_black_24dp.png), auto';
+                } else if (e.altKey) {
+                    inputRef.current.style.cursor = 'auto';
+                    inputRef.current.style.cursor =
+                        'url(images/back_hand_black_24dp.svg), auto';
+                } else {
+                    inputRef.current.style.cursor = 'auto';
                 }
-                inputRef.current.style.cursor =
-                    'url(/images/outline_delete_black_24dp.png), pointer';
             }}
         />
     );

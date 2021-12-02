@@ -1,6 +1,8 @@
 import { firebaseApp } from './firebase';
 import { getDatabase, ref, set, remove, onValue } from 'firebase/database';
 
+// TODO
+// login failed, userId null(BUG) -> handle login redirection
 class Database {
     constructor() {
         this.db = getDatabase(firebaseApp);
@@ -30,6 +32,10 @@ class Database {
 
     removeMessage(userId, messageId) {
         remove(ref(this.db, `${userId}/messages/${messageId}`));
+    }
+
+    removeImage(userId, ImageId) {
+        remove(ref(this.db, `${userId}/images/${ImageId}`));
     }
 }
 

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router';
+import React from 'react';
+import { useNavigate } from 'react-router';
 import styles from './header.module.css';
 
 const Header = ({ authService }) => {

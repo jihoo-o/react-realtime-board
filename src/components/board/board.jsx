@@ -3,23 +3,17 @@ import { useLocation, useNavigate } from 'react-router';
 import MessageBox from '../message_box/message_box';
 import ImageBox from 'components/image_box/image_box';
 import styles from './board.module.css';
+import { itemTemplate } from 'common/template';
+import { BOARD, IMAGE_BOX, MESSAGE_BOX } from 'common/constant';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
     const location = useLocation();
+    const [itemType, setItemType] = useState(BOARD);
+    const [currKey, setCurrKey] = useState(null);
     const [userId, setUserId] = useState(location.state && location.state.id);
     const [messages, setMessages] = useState({});
     const [images, setImages] = useState({});
-    // {
-    //     // FIREBASE
-    //     // userId/
-    //     images: {
-    //         id,
-    //         x,
-    //         y,
-    //        fileURL
-    //     }
-    // }
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,96 +33,130 @@ const Board = ({ authService, database, imageUploader }) => {
             });
         return () => {
             stopSync();
+            // setMessages({});
+            // setImages({});
         };
-    }, [userId, authService, database]);
+    }, [userId, authService, database, navigate]);
 
-    // About drag and drop
-    useEffect(() => {
-        initDragEvents();
-        return () => {
-            removeDragEvents();
-        };
+    const handleDragEnter = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
     }, []);
 
-    const initDragEvents = () => {
+    const handleDragLeave = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, []);
+
+    const handleDragOver = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
+    }, []);
+
+    const handleDrop = useCallback((e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        addImageBox(e.dataTransfer.files[0], e.clientX, e.clientY);
+    }, []);
+
+    const setEventListeners = useCallback(() => {
+        // BUG
+        // sometimes dndZoneRef undefined
         dndZoneRef.current.addEventListener('dragenter', handleDragEnter);
         dndZoneRef.current.addEventListener('dragleave', handleDragLeave);
         dndZoneRef.current.addEventListener('dragover', handleDragOver);
         dndZoneRef.current.addEventListener('drop', handleDrop);
-    };
 
-    const removeDragEvents = () => {
-        dndZoneRef.current.removeEventListener('dragenter', (e) => {});
-        dndZoneRef.current.removeEventListener('dragleave', (e) => {});
-        dndZoneRef.current.removeEventListener('dragover', (e) => {});
-        dndZoneRef.current.removeEventListener('drop', (e) => {});
-    };
+        window.addEventListener('keydown', changeCurrKey);
+        window.addEventListener('keyup', changeCurrKey);
+    }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop]);
 
-    const handleDragEnter = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
+    const removeEventListeners = useCallback(() => {
+        dndZoneRef.current.removeEventListener('dragenter', handleDragEnter);
+        dndZoneRef.current.removeEventListener('dragleave', handleDragLeave);
+        dndZoneRef.current.removeEventListener('dragover', handleDragOver);
+        dndZoneRef.current.removeEventListener('drop', handleDrop);
 
-    const handleDragLeave = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
+        window.addEventListener('keydown', changeCurrKey);
+        window.addEventListener('keyup', changeCurrKey);
+    }, [handleDragEnter, handleDragLeave, handleDragOver, handleDrop]);
 
-    const handleDragOver = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
+    // Handle drag and drop
+    useEffect(() => {
+        setEventListeners();
+        return () => {
+            removeEventListeners();
+        };
+    }, [setEventListeners, removeEventListeners]);
 
-    const handleDrop = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        uploadImage(e.dataTransfer.files[0], e.clientX, e.clientY);
-    };
-
-    const uploadImage = async (file, x, y) => {
-        try {
-            const uploaded = await imageUploader.upload(file);
-            const id = Date.now();
-            const rect = dndZoneRef.current.getBoundingClientRect();
-            const img = {
-                id,
-                x: x - rect.left,
-                y: y - rect.top,
-                // TODO
-                // using public ID
-                fileUrl: uploaded.url
-                    ? uploaded.url
-                    : '불러올 수 없는 이미지입니다!',
-            };
-            setImages((images) => {
-                const updated = { ...images };
-                updated[id] = img;
-                return updated;
-            });
-            database.saveImage(userId, img);
-        } catch (e) {
-            console.error(e);
+    const changeCurrKey = (e) => {
+        if (e.type === 'keydown') {
+            setCurrKey(e.key);
+        }
+        if (e.type === 'keyup') {
+            setCurrKey(null);
         }
     };
 
-    const handleBoardClick = (e) => {
+    /**
+     * Event Delegation on Board
+     * ⬇️
+     */
+
+    /**
+     * @param clickEvent - Used to get coordinates. Don't use it for type checking.
+     * @param itemType - Used to check item type when deleting it.
+     */
+    const handleBoardClick = useCallback((clickEvent, itemType) => {
+        if (!itemType) return;
+
+        /**
+         * @currKey
+         * Alt -> move clicked item    ---> expected
+         * Meta -> delete clicked item
+         * m -> create MessageBox
+         * i -> create ImageBox
+         * d -> create DrawingBox ---> expected
+         * w -> create WebcamBox ---> expected
+         * v -> create VideoBox ---> expected
+         * g -> create GameBox ---> expected
+         */
+        if (currKey === 'm') {
+            addMessageBox(clickEvent.clientX, clickEvent.clientY);
+        } else if (currKey === 'i') {
+            addImageBox();
+        } else if (currKey === 'Meta') {
+            if (itemType === MESSAGE_BOX) {
+                removeMessageBox(clickEvent.target.id);
+            }
+            if (itemType === IMAGE_BOX) {
+                removeImageBox(clickEvent.target.id);
+            }
+        }
+    });
+
+    /**
+     * MessageBox
+     * ⬇️
+     */
+
+    const addMessageBox = (x, y) => {
         const id = Date.now();
         const rect = dndZoneRef.current.getBoundingClientRect();
-        const message = {
-            id,
-            x: e.clientX - rect.left,
-            y: e.clientY - rect.top,
-            text: '',
-        };
+        const template = { ...itemTemplate[itemType] };
+        template.id = id;
+        template.x = x - rect.left;
+        template.y = y - rect.top;
+        template.text = '';
         setMessages((messages) => {
             const updated = { ...messages };
-            updated[id] = message;
+            updated[id] = template;
             return updated;
         });
-        database.saveMessage(userId, message);
+        database.saveMessage(userId, template);
     };
 
-    const handleMessageClick = useCallback((messageId) => {
+    const removeMessageBox = useCallback((messageId) => {
         setMessages((messages) => {
             const updated = { ...messages };
             delete updated[messageId];
@@ -147,22 +175,68 @@ const Board = ({ authService, database, imageUploader }) => {
         database.saveMessage(userId, changedMessage);
     });
 
+    /**
+     * ImageBox
+     * ⬇️
+     */
+
+    const addImageBox = async (file, x, y) => {
+        try {
+            // TODO
+            // !file, show image upload widget
+            if (!file) return;
+            const uploaded = await imageUploader.upload(file);
+            const id = Date.now();
+            const rect = dndZoneRef.current.getBoundingClientRect();
+            const template = { ...itemTemplate[itemType] };
+            template.id = id;
+            template.x = x - rect.left;
+            template.y = y - rect.top;
+            template.fileUrl = uploaded.url
+                ? uploaded.url
+                : '불러올 수 없는 이미지입니다!';
+            setImages((images) => {
+                const updated = { ...images };
+                updated[id] = template;
+                return updated;
+            });
+            database.saveImage(userId, template);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
+    const removeImageBox = (imageId) => {
+        setImages((images) => {
+            const updated = { ...images };
+            delete updated[imageId];
+            return updated;
+        });
+        database.removeImage(userId, imageId);
+    };
+
     return (
         <div
             ref={dndZoneRef}
             className={styles.board}
-            onClick={handleBoardClick}
+            onClick={(e) => handleBoardClick(e, itemType)}
         >
             {Object.keys(messages).map((key) => (
                 <MessageBox
                     key={key}
                     message={messages[key]}
-                    onMessageClick={handleMessageClick}
+                    // handleMessageClick -> handleBoardClick
+                    // onMessageClick={handleMessageClick}
+                    onMessageClick={handleBoardClick}
                     onMessageChange={handleMessageChange}
                 />
             ))}
             {Object.keys(images).map((key) => (
-                <ImageBox key={key} img={images[key]} />
+                <ImageBox
+                    key={key}
+                    img={images[key]}
+                    onImageClick={handleBoardClick}
+                />
             ))}
         </div>
     );
