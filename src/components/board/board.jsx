@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import { motion } from 'framer-motion';
 import MessageBox from '../message_box/message_box';
 import ImageBox from 'components/image_box/image_box';
 import styles from './board.module.css';
@@ -8,6 +9,7 @@ import { BOARD, IMAGE_BOX, MESSAGE_BOX } from 'common/constant';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
+    const constraintsRef = useRef();
     const location = useLocation();
     const [itemType, setItemType] = useState(BOARD);
     const [currKey, setCurrKey] = useState(null);
@@ -56,12 +58,12 @@ const Board = ({ authService, database, imageUploader }) => {
     const handleDrop = useCallback((e) => {
         e.preventDefault();
         e.stopPropagation();
-        addImageBox(e.dataTransfer.files[0], e.clientX, e.clientY);
+        updateImageBox(e.dataTransfer.files[0], e.clientX, e.clientY);
     }, []);
 
     const setEventListeners = useCallback(() => {
         // BUG
-        // sometimes dndZoneRef undefined
+        // dndZoneRef has undefined sometimes
         dndZoneRef.current.addEventListener('dragenter', handleDragEnter);
         dndZoneRef.current.addEventListener('dragleave', handleDragLeave);
         dndZoneRef.current.addEventListener('dragover', handleDragOver);
@@ -124,7 +126,7 @@ const Board = ({ authService, database, imageUploader }) => {
         if (currKey === 'm') {
             addMessageBox(clickEvent.clientX, clickEvent.clientY);
         } else if (currKey === 'i') {
-            addImageBox();
+            updateImageBox();
         } else if (currKey === 'Meta') {
             if (itemType === MESSAGE_BOX) {
                 removeMessageBox(clickEvent.target.id);
@@ -165,8 +167,15 @@ const Board = ({ authService, database, imageUploader }) => {
         database.removeMessage(userId, messageId);
     });
 
-    const handleMessageChange = useCallback((messageId, text) => {
-        const changedMessage = { ...messages[messageId], text };
+    const updateMessageBox = useCallback((messageId, text, x, y) => {
+        // const x = messages[messageId].x + addedX;
+        // const y = messages[messageId].y + addedY;
+        console.log(text);
+        console.log(messages[messageId]);
+        const changedMessage = text
+            ? { ...messages[messageId], text }
+            : { ...messages[messageId], x, y };
+        console.log(changedMessage);
         setMessages((messages) => {
             const updated = { ...messages };
             updated[messageId] = changedMessage;
@@ -180,7 +189,7 @@ const Board = ({ authService, database, imageUploader }) => {
      * ⬇️
      */
 
-    const addImageBox = async (file, x, y) => {
+    const updateImageBox = async (file, x, y) => {
         try {
             // TODO
             // !file, show image upload widget
@@ -195,6 +204,8 @@ const Board = ({ authService, database, imageUploader }) => {
             template.fileUrl = uploaded.url
                 ? uploaded.url
                 : '불러올 수 없는 이미지입니다!';
+            template.height = uploaded.height;
+            template.width = uploaded.width;
             setImages((images) => {
                 const updated = { ...images };
                 updated[id] = template;
@@ -221,23 +232,25 @@ const Board = ({ authService, database, imageUploader }) => {
             className={styles.board}
             onClick={(e) => handleBoardClick(e, itemType)}
         >
-            {Object.keys(messages).map((key) => (
-                <MessageBox
-                    key={key}
-                    message={messages[key]}
-                    // handleMessageClick -> handleBoardClick
-                    // onMessageClick={handleMessageClick}
-                    onMessageClick={handleBoardClick}
-                    onMessageChange={handleMessageChange}
-                />
-            ))}
-            {Object.keys(images).map((key) => (
-                <ImageBox
-                    key={key}
-                    img={images[key]}
-                    onImageClick={handleBoardClick}
-                />
-            ))}
+            <motion.div className={styles.motionContainer} ref={constraintsRef}>
+                {Object.keys(messages).map((key) => (
+                    <MessageBox
+                        key={key}
+                        message={messages[key]}
+                        removeMessageBox={handleBoardClick}
+                        updateMessageBox={updateMessageBox}
+                        constraintsRef={constraintsRef}
+                    />
+                ))}
+                {Object.keys(images).map((key) => (
+                    <ImageBox
+                        key={key}
+                        img={images[key]}
+                        onImageClick={handleBoardClick}
+                        constraintsRef={constraintsRef}
+                    />
+                ))}
+            </motion.div>
         </div>
     );
 };

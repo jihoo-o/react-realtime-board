@@ -1,9 +1,14 @@
 @value primaryEggShell, primaryBlack from '../../common/colors.css';
 
-.input {
+.motionItem {
     display: block;
     position: absolute;
     width: 150px;
+    margin: 0;
+}
+
+.input {
+    width: 100%;
     font-size: 1.2em;
     font-weight: bold;
     color: primaryBlack;

@@ -7,3 +7,8 @@
     background: primaryWhite;
     overflow: scroll;
 }
+
+.motionContainer {
+    width: 100%;
+    height: 100%;
+}

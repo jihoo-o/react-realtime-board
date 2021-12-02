@@ -1,7 +1,9 @@
-.imgWrapper {
+.motionItem {
+    display: block;
     position: absolute;
 }
 
 .img {
     border-radius: 10px;
+    margin: 0;
 }

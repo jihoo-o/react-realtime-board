@@ -10,5 +10,7 @@ export const itemTemplate = {
         x: null,
         y: null,
         fileUrl: null,
+        height: null,
+        width: null,
     },
 };

@@ -25,7 +25,6 @@ function App({ authService, database, imageUploader }) {
                         element={
                             <>
                                 <Header authService={authService} />
-
                                 <Board
                                     authService={authService}
                                     database={database}
