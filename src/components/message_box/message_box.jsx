@@ -1,20 +1,11 @@
 import { MESSAGE_BOX } from 'common/constant';
-import { motion } from 'framer-motion';
 import React, { useState, useEffect, useRef } from 'react';
-import { __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED } from 'react';
 import styles from './message_box.module.css';
+import Draggable from 'react-draggable';
 
-const MessageBox = ({
-    message,
-    removeMessageBox,
-    updateMessageBox,
-    constraintsRef,
-}) => {
-    const inputRef = useRef();
-    const dragRef = useRef();
+const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
     const [itemType, setItemType] = useState(MESSAGE_BOX);
-    const [draggable, setDraggable] = useState(false);
-    const { id, x, y, text } = message;
+    const inputRef = useRef();
 
     useEffect(() => {
         inputRef.current.style.height = 'auto';
@@ -22,43 +13,49 @@ const MessageBox = ({
     }, [message]);
 
     return (
-        <motion.div
-            ref={dragRef}
-            className={styles.motionItem}
-            drag={draggable}
-            dragConstraints={constraintsRef}
-            dragMomentum={false}
-            dragElastic={0}
-            onDragEnd={(event, info) => {
-                setDraggable(false);
-                // TODO
-                // upload to DB
-                // updateMessageBox(id, null, info.point.x, info.point.y);
-            }}
-            style={{
-                top: y,
-                left: x,
+        <Draggable
+            axis="both"
+            bounds="parent"
+            position={{ x: 0, y: 0 }}
+            // handle=".handle"
+            // defaultPosition={{ x: 0, y: 0 }}
+            scale={1}
+            /**
+             * TODO
+             * Mutual exclusion related to the location of the item can be occured on the board.
+             * use the onStart below.
+             */
+            // onStart={() => true}
+            onStop={(e, data) => {
+                onMessageChange(message.id, null, data.x, data.y);
             }}
         >
             <textarea
                 ref={inputRef}
-                id={id}
+                key={message.id}
+                id={message.id}
                 className={styles.input}
                 type="text"
-                value={text}
+                value={message.text}
                 maxLength="50"
                 style={{
+                    top: message.y,
+                    left: message.x,
                     cursor: 'auto',
                 }}
                 onClick={(e) => {
-                    itemType && removeMessageBox(e, itemType);
+                    itemType && onMessageClick(e, itemType);
                 }}
                 onInput={(e) => {
-                    updateMessageBox(e.target.id, e.target.value);
+                    onMessageChange(e.target.id, e.target.value);
                     e.target.style.height = 'auto';
                     e.target.style.height = e.target.scrollHeight + 'px';
                 }}
                 onMouseMove={(e) => {
+                    /**
+                     * TODO
+                     * use classList + css
+                     */
                     if (e.metaKey) {
                         inputRef.current.style.cursor = 'auto';
                         inputRef.current.style.cursor =
@@ -66,16 +63,12 @@ const MessageBox = ({
                     } else if (e.altKey) {
                         inputRef.current.style.cursor = 'auto';
                         inputRef.current.style.cursor = 'grab';
-                        // TODO
-                        // change to grab & grabbing
-                        // set draggable state & render motion.div
-                        setDraggable(true);
                     } else {
                         inputRef.current.style.cursor = 'auto';
                     }
                 }}
             />
-        </motion.div>
+        </Draggable>
     );
 };
 

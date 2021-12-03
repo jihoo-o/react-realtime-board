@@ -6,6 +6,9 @@
     height: 100%;
     background: primaryWhite;
     overflow: scroll;
+
+    /* used for the drag bound. */
+    padding: 5px;
 }
 
 .motionContainer {
