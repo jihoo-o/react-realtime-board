@@ -14,4 +14,7 @@
     overflow: hidden;
     white-space: normal;
     resize: none;
+
+    /*  */
+    margin: 2px;
 }

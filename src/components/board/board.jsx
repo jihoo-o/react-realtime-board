@@ -5,6 +5,7 @@ import ImageBox from 'components/image_box/image_box';
 import styles from './board.module.css';
 import { itemTemplate } from 'common/template';
 import { BOARD, IMAGE_BOX, MESSAGE_BOX } from 'common/constant';
+import DraggableItem from 'components/draggable_item/draggable_item';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
@@ -85,7 +86,7 @@ const Board = ({ authService, database, imageUploader }) => {
     useEffect(() => {
         setEventListeners();
         return () => {
-            removeEventListeners();
+            // removeEventListeners();
         };
     }, [setEventListeners, removeEventListeners]);
 
@@ -165,8 +166,12 @@ const Board = ({ authService, database, imageUploader }) => {
         database.removeMessage(userId, messageId);
     });
 
-    const handleMessageChange = useCallback((messageId, text) => {
-        const changedMessage = { ...messages[messageId], text };
+    const updateMessageBox = useCallback((messageId, text, deltaX, deltaY) => {
+        const x = messages[messageId].x + deltaX;
+        const y = messages[messageId].y + deltaY;
+        const changedMessage = text
+            ? { ...messages[messageId], text }
+            : { ...messages[messageId], x, y };
         setMessages((messages) => {
             const updated = { ...messages };
             updated[messageId] = changedMessage;
@@ -221,6 +226,13 @@ const Board = ({ authService, database, imageUploader }) => {
             className={styles.board}
             onClick={(e) => handleBoardClick(e, itemType)}
         >
+            {/* 
+            /**
+             * TODO
+             * All draggable item has <Draggable>
+             * Why not use DraggableItem wrapper.
+             * 
+             */}
             {Object.keys(messages).map((key) => (
                 <MessageBox
                     key={key}
@@ -228,7 +240,7 @@ const Board = ({ authService, database, imageUploader }) => {
                     // handleMessageClick -> handleBoardClick
                     // onMessageClick={handleMessageClick}
                     onMessageClick={handleBoardClick}
-                    onMessageChange={handleMessageChange}
+                    onMessageChange={updateMessageBox}
                 />
             ))}
             {Object.keys(images).map((key) => (

@@ -24,8 +24,8 @@ const ImageBox = ({ img, onImageClick }) => {
                         'url(/images/outline_delete_black_24dp.png), auto';
                 } else if (e.altKey) {
                     imgRef.current.style.cursor = 'auto';
-                    imgRef.current.style.cursor =
-                        'url(images/back_hand_black_24dp.svg), auto';
+                    imgRef.current.style.cursor = 'grab';
+                    // 'url(images/back_hand_black_24dp.svg), auto';
                 } else {
                     imgRef.current.style.cursor = 'auto';
                 }
