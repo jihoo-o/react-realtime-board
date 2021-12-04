@@ -14,11 +14,16 @@ const cursorStyle = {
     // g: styles.addGameBox,
 };
 
-const MessageBox = ({ currKey, message, onMessageClick, onMessageChange }) => {
+const MessageBox = ({
+    pressedKey,
+    message,
+    onMessageClick,
+    onMessageChange,
+}) => {
+    const inputRef = useRef();
     const [itemType, setItemType] = useState(MESSAGE_BOX);
     const [mouseEnter, setMouseEnter] = useState(false);
     const [dragging, setDragging] = useState(false);
-    const inputRef = useRef();
 
     useEffect(() => {
         inputRef.current.style.height = 'auto';
@@ -37,7 +42,7 @@ const MessageBox = ({ currKey, message, onMessageClick, onMessageChange }) => {
              * use the onStart below.
              */
             onStart={() => {
-                if (currKey === 'Alt') {
+                if (pressedKey === 'Alt') {
                     setDragging(true); //
                     return true;
                 } else return false;
@@ -52,10 +57,10 @@ const MessageBox = ({ currKey, message, onMessageClick, onMessageChange }) => {
                 key={message.id}
                 id={message.id}
                 className={`${styles.input} ${
-                    mouseEnter && currKey
+                    mouseEnter && pressedKey
                         ? dragging
                             ? styles.dragging
-                            : cursorStyle[currKey]
+                            : cursorStyle[pressedKey]
                         : styles.autoCursor
                 }`}
                 type="text"

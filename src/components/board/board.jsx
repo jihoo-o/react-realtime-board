@@ -169,7 +169,10 @@ const Board = ({ authService, database, imageUploader }) => {
     const updateMessageBox = useCallback((messageId, text, deltaX, deltaY) => {
         const x = messages[messageId].x + deltaX;
         const y = messages[messageId].y + deltaY;
-        const changedMessage = (deltaX || deltaY) ? { ...messages[messageId], x, y } : { ...messages[messageId], text };
+        const changedMessage =
+            deltaX || deltaY
+                ? { ...messages[messageId], x, y }
+                : { ...messages[messageId], text };
         // const changedMessage = text
         //     ? { ...messages[messageId], text }
         //     : { ...messages[messageId], x, y };
@@ -221,6 +224,18 @@ const Board = ({ authService, database, imageUploader }) => {
         database.removeImage(userId, imageId);
     };
 
+    const updateImageBox = (imageId, deltaX, deltaY) => {
+        const x = images[imageId].x + deltaX;
+        const y = images[imageId].y + deltaY;
+        const updatedImage = { ...images[imageId], x, y };
+        setImages((images) => {
+            const updated = { ...images };
+            updated[imageId] = updatedImage;
+            return updated;
+        });
+        database.saveImage(userId, updatedImage);
+    };
+
     return (
         <div
             ref={dndZoneRef}
@@ -237,7 +252,7 @@ const Board = ({ authService, database, imageUploader }) => {
             {Object.keys(messages).map((key) => (
                 <MessageBox
                     key={key}
-                    currKey={currKey} //
+                    pressedKey={currKey} //
                     message={messages[key]}
                     // handleMessageClick -> handleBoardClick
                     // onMessageClick={handleMessageClick}
@@ -248,8 +263,10 @@ const Board = ({ authService, database, imageUploader }) => {
             {Object.keys(images).map((key) => (
                 <ImageBox
                     key={key}
+                    pressedKey={currKey}
                     img={images[key]}
                     onImageClick={handleBoardClick}
+                    onImageChange={updateImageBox}
                 />
             ))}
         </div>

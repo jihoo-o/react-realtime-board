@@ -1,12 +1,5 @@
 @value primaryEggShell, primaryBlack from '../../common/colors.css';
 
-/* .motionItem {
-    display: block;
-    position: absolute;
-    width: 150px;
-    margin: 0;
-} */
-
 .input {
     /*  */
     display: block;

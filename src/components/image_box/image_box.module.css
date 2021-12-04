@@ -1,9 +1,28 @@
-.motionItem {
+/* .motionItem {
     display: block;
     position: absolute;
+} */
+
+.imgWrapper {
+    display: block;
+    position: absolute;
+
+    /*  */
+    margin: 2px;
 }
 
 .img {
     border-radius: 10px;
     margin: 0;
+}
+
+/* cursors */
+.meta {
+    cursor: url('../../images/outline_delete_black_24dp.png'), auto;
+}
+.alt {
+    cursor: grab;
+}
+.dragging {
+    cursor: grabbing;
 }
