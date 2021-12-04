@@ -4,8 +4,7 @@ import MessageBox from '../message_box/message_box';
 import ImageBox from 'components/image_box/image_box';
 import styles from './board.module.css';
 import { itemTemplate } from 'common/template';
-import { BOARD, IMAGE_BOX, MESSAGE_BOX } from 'common/constant';
-import DraggableItem from 'components/draggable_item/draggable_item';
+import { BOARD, IMAGE_BOX, MESSAGE_BOX } from 'common/constants';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
@@ -92,6 +91,7 @@ const Board = ({ authService, database, imageUploader }) => {
 
     const changeCurrKey = (e) => {
         if (e.type === 'keydown') {
+            console.log(e.key);
             setCurrKey(e.key);
         }
         if (e.type === 'keyup') {
@@ -169,9 +169,10 @@ const Board = ({ authService, database, imageUploader }) => {
     const updateMessageBox = useCallback((messageId, text, deltaX, deltaY) => {
         const x = messages[messageId].x + deltaX;
         const y = messages[messageId].y + deltaY;
-        const changedMessage = text
-            ? { ...messages[messageId], text }
-            : { ...messages[messageId], x, y };
+        const changedMessage = (deltaX || deltaY) ? { ...messages[messageId], x, y } : { ...messages[messageId], text };
+        // const changedMessage = text
+        //     ? { ...messages[messageId], text }
+        //     : { ...messages[messageId], x, y };
         setMessages((messages) => {
             const updated = { ...messages };
             updated[messageId] = changedMessage;
@@ -236,6 +237,7 @@ const Board = ({ authService, database, imageUploader }) => {
             {Object.keys(messages).map((key) => (
                 <MessageBox
                     key={key}
+                    currKey={currKey} //
                     message={messages[key]}
                     // handleMessageClick -> handleBoardClick
                     // onMessageClick={handleMessageClick}

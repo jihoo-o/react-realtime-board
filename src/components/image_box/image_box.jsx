@@ -1,4 +1,4 @@
-import { IMAGE_BOX } from 'common/constant';
+import { IMAGE_BOX } from 'common/constants';
 import React, { useState, useRef } from 'react';
 import styles from './image_box.module.css';
 

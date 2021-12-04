@@ -1,14 +1,19 @@
 @value primaryEggShell, primaryBlack from '../../common/colors.css';
 
-.motionItem {
+/* .motionItem {
     display: block;
     position: absolute;
     width: 150px;
     margin: 0;
-}
+} */
 
 .input {
-    width: 100%;
+    /*  */
+    display: block;
+    position: absolute;
+    width: 150px;
+
+    /* width: 100%; */
     font-size: 1.2em;
     font-weight: bold;
     color: primaryBlack;
@@ -22,4 +27,15 @@
 
     /*  */
     margin: 2px;
+}
+
+/* cursors */
+.meta {
+    cursor: url('../../images/outline_delete_black_24dp.png'), auto;
+}
+.alt {
+    cursor: grab;
+}
+.dragging {
+    cursor: grabbing;
 }

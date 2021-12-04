@@ -1,10 +1,23 @@
-import { MESSAGE_BOX } from 'common/constant';
+import { MESSAGE_BOX } from 'common/constants';
 import React, { useState, useEffect, useRef } from 'react';
 import styles from './message_box.module.css';
 import Draggable from 'react-draggable';
+// ~cursors: '../../common/constant.js';
 
-const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
+const cursorStyle = {
+    Meta: styles.meta,
+    Alt: styles.alt,
+    // m: styles.addMessageBox,
+    // i: styles.addImageBox,
+    // d: styles.addDrawingBox,
+    // w: styles.addWebcamBox,
+    // g: styles.addGameBox,
+};
+
+const MessageBox = ({ currKey, message, onMessageClick, onMessageChange }) => {
     const [itemType, setItemType] = useState(MESSAGE_BOX);
+    const [mouseEnter, setMouseEnter] = useState(false);
+    const [dragging, setDragging] = useState(false);
     const inputRef = useRef();
 
     useEffect(() => {
@@ -17,16 +30,20 @@ const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
             axis="both"
             bounds="parent"
             position={{ x: 0, y: 0 }}
-            // handle=".handle"
-            // defaultPosition={{ x: 0, y: 0 }}
             scale={1}
             /**
              * TODO
              * Mutual exclusion related to the location of the item can be occured on the board.
              * use the onStart below.
              */
-            // onStart={() => true}
+            onStart={() => {
+                if (currKey === 'Alt') {
+                    setDragging(true); //
+                    return true;
+                } else return false;
+            }}
             onStop={(e, data) => {
+                setDragging(false);
                 onMessageChange(message.id, null, data.x, data.y);
             }}
         >
@@ -34,14 +51,19 @@ const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
                 ref={inputRef}
                 key={message.id}
                 id={message.id}
-                className={styles.input}
+                className={`${styles.input} ${
+                    mouseEnter && currKey
+                        ? dragging
+                            ? styles.dragging
+                            : cursorStyle[currKey]
+                        : styles.autoCursor
+                }`}
                 type="text"
                 value={message.text}
                 maxLength="50"
                 style={{
                     top: message.y,
                     left: message.x,
-                    cursor: 'auto',
                 }}
                 onClick={(e) => {
                     itemType && onMessageClick(e, itemType);
@@ -51,21 +73,17 @@ const MessageBox = ({ message, onMessageClick, onMessageChange }) => {
                     e.target.style.height = 'auto';
                     e.target.style.height = e.target.scrollHeight + 'px';
                 }}
-                onMouseMove={(e) => {
-                    /**
-                     * TODO
-                     * use classList + css
-                     */
-                    if (e.metaKey) {
-                        inputRef.current.style.cursor = 'auto';
-                        inputRef.current.style.cursor =
-                            'url(/images/outline_delete_black_24dp.png), auto';
-                    } else if (e.altKey) {
-                        inputRef.current.style.cursor = 'auto';
-                        inputRef.current.style.cursor = 'grab';
-                    } else {
-                        inputRef.current.style.cursor = 'auto';
-                    }
+                onMouseEnter={() => {
+                    setMouseEnter(true);
+                }}
+                onMouseLeave={() => {
+                    setMouseEnter(false);
+                }}
+                onKeyDown={(e) => {
+                    e.stopPropagation();
+                }}
+                onKeyPress={(e) => {
+                    e.stopPropagation();
                 }}
             />
         </Draggable>
