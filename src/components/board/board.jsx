@@ -4,7 +4,8 @@ import MessageBox from '../message_box/message_box';
 import ImageBox from 'components/image_box/image_box';
 import styles from './board.module.css';
 import { itemTemplate } from 'common/template';
-import { BOARD, IMAGE_BOX, MESSAGE_BOX } from 'common/constants';
+import { BOARD, IMAGE_BOX, MESSAGE_BOX, WEBCAM_BOX } from 'common/constants';
+import WebcamBox from 'components/webcam_box/webcam_box';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
@@ -14,6 +15,7 @@ const Board = ({ authService, database, imageUploader }) => {
     const [userId, setUserId] = useState(location.state && location.state.id);
     const [messages, setMessages] = useState({});
     const [images, setImages] = useState({});
+    const [webcam, setWebcam] = useState({}); // null
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -28,6 +30,9 @@ const Board = ({ authService, database, imageUploader }) => {
                     });
                     database.getImages(userId, (images) => {
                         setImages(images);
+                    });
+                    database.getWebcam(userId, (webcam) => {
+                        setWebcam(webcam);
                     });
                 }
             });
@@ -113,7 +118,7 @@ const Board = ({ authService, database, imageUploader }) => {
 
         /**
          * @currKey
-         * Alt -> move clicked item    ---> expected
+         * Alt -> move clicked item
          * Meta -> delete clicked item
          * m -> create MessageBox
          * i -> create ImageBox
@@ -122,17 +127,46 @@ const Board = ({ authService, database, imageUploader }) => {
          * v -> create VideoBox ---> expected
          * g -> create GameBox ---> expected
          */
-        if (currKey === 'm') {
-            addMessageBox(clickEvent.clientX, clickEvent.clientY);
-        } else if (currKey === 'i') {
-            addImageBox();
-        } else if (currKey === 'Meta') {
-            if (itemType === MESSAGE_BOX) {
-                removeMessageBox(clickEvent.target.id);
-            }
-            if (itemType === IMAGE_BOX) {
-                removeImageBox(clickEvent.target.id);
-            }
+
+        // if (currKey === 'm') {
+        //     addMessageBox(clickEvent.clientX, clickEvent.clientY);
+        // } else if (currKey === 'i') {
+        //     addImageBox();
+        // } else if (currKey === 'Meta') {
+        //     if (itemType === MESSAGE_BOX) {
+        //         removeMessageBox(clickEvent.target.id);
+        //     }
+        //     if (itemType === IMAGE_BOX) {
+        //         removeImageBox(clickEvent.target.id);
+        //     }
+        // }
+
+        /**
+         * BUG
+         * If the keyboard language is not English,
+         * The code below is ignored
+         */
+        switch (currKey) {
+            case 'm':
+                addMessageBox(clickEvent.clientX, clickEvent.clientY);
+                break;
+            case 'i':
+                addImageBox(); // ---> expected
+                break;
+            case 'w':
+                addWebcamBox(clickEvent.clientX, clickEvent.clientY);
+                break;
+            case 'Meta':
+                if (itemType === MESSAGE_BOX) {
+                    removeMessageBox(clickEvent.target.id);
+                }
+                if (itemType === IMAGE_BOX) {
+                    removeImageBox(clickEvent.target.id);
+                }
+                if (itemType === WEBCAM_BOX) {
+                    removeWebcamBox(clickEvent.target.id);
+                }
+                break;
         }
     });
 
@@ -144,7 +178,7 @@ const Board = ({ authService, database, imageUploader }) => {
     const addMessageBox = (x, y) => {
         const id = Date.now();
         const rect = dndZoneRef.current.getBoundingClientRect();
-        const template = { ...itemTemplate[itemType] };
+        const template = { ...itemTemplate[MESSAGE_BOX] };
         template.id = id;
         template.x = x - rect.left;
         template.y = y - rect.top;
@@ -173,9 +207,6 @@ const Board = ({ authService, database, imageUploader }) => {
             deltaX || deltaY
                 ? { ...messages[messageId], x, y }
                 : { ...messages[messageId], text };
-        // const changedMessage = text
-        //     ? { ...messages[messageId], text }
-        //     : { ...messages[messageId], x, y };
         setMessages((messages) => {
             const updated = { ...messages };
             updated[messageId] = changedMessage;
@@ -197,7 +228,7 @@ const Board = ({ authService, database, imageUploader }) => {
             const uploaded = await imageUploader.upload(file);
             const id = Date.now();
             const rect = dndZoneRef.current.getBoundingClientRect();
-            const template = { ...itemTemplate[itemType] };
+            const template = { ...itemTemplate[IMAGE_BOX] };
             template.id = id;
             template.x = x - rect.left;
             template.y = y - rect.top;
@@ -236,18 +267,65 @@ const Board = ({ authService, database, imageUploader }) => {
         database.saveImage(userId, updatedImage);
     };
 
+    /**
+     * WebcamBox
+     * ⬇️
+     */
+    const addWebcamBox = (x, y) => {
+        if (Object.keys(webcam).length > 0) {
+            window.alert('웹캠은 한 개만 소유할 수 있습니다!');
+            return;
+        }
+        const id = Date.now();
+        const rect = dndZoneRef.current.getBoundingClientRect();
+        const template = { ...itemTemplate[WEBCAM_BOX] };
+        template.id = id;
+        template.x = x - rect.left;
+        template.y = y - rect.top;
+        template.userId = userId;
+        setWebcam((webcam) => {
+            const updated = { ...webcam };
+            updated[id] = template;
+            return updated;
+        });
+        database.saveWebcam(userId, template);
+    };
+
+    const removeWebcamBox = (webcamId) => {
+        setWebcam((webcam) => {
+            const updated = { ...webcam };
+            delete updated[webcamId];
+            return updated;
+        });
+        database.removeWebcam(userId, webcamId);
+    };
+
+    /**
+     * Update position and turn the cam on/off
+     */
+    const updateWebcam = (webcamId, deltaX, deltaY) => {
+        const x = webcam[webcamId].x + deltaX;
+        const y = webcam[webcamId].y + deltaY;
+        const updatedWebcam = { ...webcam[webcamId], x, y };
+        setWebcam((webcam) => {
+            const updated = { ...webcam };
+            updated[webcamId] = updatedWebcam;
+            return updated;
+        });
+        database.saveWebcam(userId, updatedWebcam);
+    };
+
     return (
         <div
             ref={dndZoneRef}
             className={styles.board}
             onClick={(e) => handleBoardClick(e, itemType)}
         >
-            {/* 
-            /**
+            {/**
              * TODO
-             * All draggable item has <Draggable>
+             * All draggable itwem has <Draggable>
              * Why not use DraggableItem wrapper.
-             * 
+             *
              */}
             {Object.keys(messages).map((key) => (
                 <MessageBox
@@ -267,6 +345,28 @@ const Board = ({ authService, database, imageUploader }) => {
                     img={images[key]}
                     onImageClick={handleBoardClick}
                     onImageChange={updateImageBox}
+                />
+            ))}
+            {/* 
+            /**
+             * User can have one WebcamBox.
+             * {
+             *  webcam: {
+             *      id: userId,
+             *      x,
+             *      y,
+             *      playing
+             *  }  
+             * }
+            */}
+            {Object.keys(webcam).map((key) => (
+                <WebcamBox
+                    key={key}
+                    pressedKey={currKey}
+                    userId={userId}
+                    webcam={webcam[key]}
+                    onWebcamClick={handleBoardClick}
+                    onWebcamChange={updateWebcam}
                 />
             ))}
         </div>

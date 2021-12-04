@@ -1,17 +1,13 @@
-/* .motionItem {
-    display: block;
-    position: absolute;
-} */
-
-.imgWrapper {
+.webcamWrapper {
     display: block;
     position: absolute;
     margin: 2px;
+
+    border-radius: 10px;
 }
 
-.img {
+.webcam {
     border-radius: 10px;
-    margin: 0;
 }
 
 /* cursors */
