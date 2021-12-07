@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './webcam_controller.module.css';
 
-const WebcamController = ({ mouseEnter }) => (
+const WebcamController = ({ camOn, mouseEnter, changeCamState }) => (
     <div
         className={`${styles.webcamController} ${
             mouseEnter
@@ -9,12 +9,17 @@ const WebcamController = ({ mouseEnter }) => (
                 : styles.hideWebcamController
         }`}
     >
-        {/* 
-        /**
-         * on/off toggle
-        */}
         <label className={styles.switch}>
-            <input type="checkbox" />
+            <input
+                type="checkbox"
+                onClick={() => {
+                    if (camOn === true) {
+                        changeCamState(false);
+                    } else {
+                        changeCamState(true);
+                    }
+                }}
+            />
             <span className={`${styles.slider} ${styles.round}`}></span>
         </label>
     </div>

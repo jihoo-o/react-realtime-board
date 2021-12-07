@@ -5,12 +5,14 @@
 export const itemTemplate = {
     MESSAGE_BOX: {
         id: null,
+        userId: null,
         x: null,
         y: null,
         text: null,
     },
     IMAGE_BOX: {
         id: null,
+        userId: null,
         x: null,
         y: null,
         fileUrl: null,

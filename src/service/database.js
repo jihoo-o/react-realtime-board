@@ -8,49 +8,49 @@ class Database {
         this.db = getDatabase(firebaseApp);
     }
 
-    saveMessage(userId, message) {
-        set(ref(this.db, `${userId}/messages/${message.id}`), message);
+    saveMessage(message) {
+        set(ref(this.db, `messages/${message.id}`), message);
     }
 
-    saveImage(userId, image) {
-        set(ref(this.db, `${userId}/images/${image.id}`), image);
+    saveImage(image) {
+        set(ref(this.db, `images/${image.id}`), image);
     }
 
-    saveWebcam(userId, webcam) {
-        set(ref(this.db, `${userId}/webcam/${webcam.id}`), webcam);
+    saveWebcam(webcam) {
+        set(ref(this.db, `webcam/${webcam.id}`), webcam);
     }
 
-    getMessage(userId, onUpdate) {
-        onValue(ref(this.db, `${userId}/messages`), (snapshot) => {
+    getMessage(onUpdate) {
+        onValue(ref(this.db, `messages`), (snapshot) => {
             const messages = snapshot.val();
             messages ? onUpdate(messages) : onUpdate({});
         });
     }
 
-    getImages(userId, onUpdate) {
-        onValue(ref(this.db, `${userId}/images`), (snapshot) => {
+    getImages(onUpdate) {
+        onValue(ref(this.db, `images`), (snapshot) => {
             const images = snapshot.val();
             images ? onUpdate(images) : onUpdate({});
         });
     }
 
-    getWebcam(userId, onUpdate) {
-        onValue(ref(this.db, `${userId}/webcam`), (snapshot) => {
+    getWebcam(onUpdate) {
+        onValue(ref(this.db, `webcam`), (snapshot) => {
             const webcam = snapshot.val();
             webcam ? onUpdate(webcam) : onUpdate({});
         });
     }
 
-    removeMessage(userId, messageId) {
-        remove(ref(this.db, `${userId}/messages/${messageId}`));
+    removeMessage(messageId) {
+        remove(ref(this.db, `messages/${messageId}`));
     }
 
-    removeImage(userId, ImageId) {
-        remove(ref(this.db, `${userId}/images/${ImageId}`));
+    removeImage(ImageId) {
+        remove(ref(this.db, `images/${ImageId}`));
     }
 
-    removeWebcam(userId, webcamId) {
-        remove(ref(this.db, `${userId}/webcam/${webcamId}`));
+    removeWebcam(webcamId) {
+        remove(ref(this.db, `webcam/${webcamId}`));
     }
 }
 

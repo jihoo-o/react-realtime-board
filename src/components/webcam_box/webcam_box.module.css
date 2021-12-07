@@ -1,12 +1,24 @@
-.webcamWrapper {
+.webcamAbsolute {
     display: block;
     position: absolute;
     margin: 2px;
-
     border-radius: 10px;
+
+    width: 200px;
+    height: 200px;
+    background: black;
+}
+
+.webcamRelative {
+    position: relative;
 }
 
 .webcam {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
+
     border-radius: 10px;
 }
 

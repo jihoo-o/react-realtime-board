@@ -1,6 +1,6 @@
 import { WEBCAM_BOX } from 'common/constants';
 import WebcamController from 'components/webcam_controller/webcam_controller';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Draggable from 'react-draggable';
 import Webcam from 'react-webcam';
 import styles from './webcam_box.module.css';
@@ -20,8 +20,16 @@ const WebcamBox = ({
     const [itemType, setItemType] = useState(WEBCAM_BOX);
     const [mouseEnter, setMouseEnter] = useState(false);
     const [dragging, setDragging] = useState(false);
-    // console.log(webcam);
-    // return <span>hi</span>;
+    const [camOn, setCamOn] = useState(false);
+
+    useEffect(() => {
+        handleWebcamChange(false);
+    }, []);
+
+    const handleWebcamChange = (isPlaying) => {
+        setCamOn(isPlaying);
+        onWebcamChange(webcam.id, null, null, isPlaying);
+    };
 
     return (
         <Draggable
@@ -34,12 +42,6 @@ const WebcamBox = ({
              * Mutual exclusion related to the location of the item can be occured on the board.
              * use the onStart below.
              */
-            // onStart={() => {
-            //     if (pressedKey === 'Alt') {
-            //         setDragging(true); //
-            //         return true;
-            //     } else return false;
-            // }}
             onStart={() => {
                 if (pressedKey === 'Alt') {
                     setDragging(true); //
@@ -52,8 +54,7 @@ const WebcamBox = ({
             }}
         >
             <div
-                // className={styles.webcamWrapper}
-                className={`${styles.webcamWrapper} ${
+                className={`${styles.webcamAbsolute} ${
                     mouseEnter && pressedKey
                         ? dragging
                             ? styles.dragging
@@ -74,27 +75,36 @@ const WebcamBox = ({
                     setMouseEnter(false);
                 }}
             >
-                <Webcam
-                    id={webcam.id}
-                    className={styles.webcam}
-                    mirrored={true}
-                    screenshotQuality={1}
-                    /**
-                     * Set audio true only when the earphone is connected.
-                     */
-                    audio={false}
-                    // audioConstraints={}
-                    videoConstraints={{
-                        width: 200,
-                        height: 200,
-                        // facingMode: "user" // front camera on mobile
-                    }}
-                />
-                {/* 
-                /**
-                 * WebcamControler appears when mouse over & user own. ---> make state
-                 */}
-                <WebcamController mouseEnter={mouseEnter} />
+                <div className={styles.webcamRelative}>
+                    {/**
+                     * WebcamControler appears when mouse over && user own.
+                     */}
+                    {userId === webcam.userId && (
+                        <WebcamController
+                            camOn={camOn}
+                            mouseEnter={mouseEnter}
+                            changeCamState={handleWebcamChange}
+                        />
+                    )}
+                    {webcam.playing && (
+                        <Webcam
+                            id={webcam.id}
+                            className={styles.webcam}
+                            mirrored={true}
+                            screenshotQuality={1}
+                            /**
+                             * Set audio true only when the earphone is connected.
+                             */
+                            audio={false}
+                            // audioConstraints={}
+                            videoConstraints={{
+                                width: 200,
+                                height: 200,
+                                // facingMode: "user" // front camera on mobile
+                            }}
+                        />
+                    )}
+                </div>
             </div>
         </Draggable>
     );

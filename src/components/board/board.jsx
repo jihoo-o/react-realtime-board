@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import MessageBox from '../message_box/message_box';
 import ImageBox from 'components/image_box/image_box';
@@ -25,14 +25,14 @@ const Board = ({ authService, database, imageUploader }) => {
                     navigate('/');
                 } else {
                     setUserId(user.uid);
-                    database.getMessage(userId, (messages) => {
-                        setMessages(messages);
+                    database.getMessage((messages) => {
+                        setMessages((satate) => messages);
                     });
-                    database.getImages(userId, (images) => {
-                        setImages(images);
+                    database.getImages((images) => {
+                        setImages((state) => images);
                     });
-                    database.getWebcam(userId, (webcam) => {
-                        setWebcam(webcam);
+                    database.getWebcam((webcam) => {
+                        setWebcam((state) => webcam);
                     });
                 }
             });
@@ -180,6 +180,7 @@ const Board = ({ authService, database, imageUploader }) => {
         const rect = dndZoneRef.current.getBoundingClientRect();
         const template = { ...itemTemplate[MESSAGE_BOX] };
         template.id = id;
+        template.userId = userId;
         template.x = x - rect.left;
         template.y = y - rect.top;
         template.text = '';
@@ -188,7 +189,7 @@ const Board = ({ authService, database, imageUploader }) => {
             updated[id] = template;
             return updated;
         });
-        database.saveMessage(userId, template);
+        database.saveMessage(template);
     };
 
     const removeMessageBox = useCallback((messageId) => {
@@ -197,7 +198,7 @@ const Board = ({ authService, database, imageUploader }) => {
             delete updated[messageId];
             return updated;
         });
-        database.removeMessage(userId, messageId);
+        database.removeMessage(messageId);
     });
 
     const updateMessageBox = useCallback((messageId, text, deltaX, deltaY) => {
@@ -212,7 +213,7 @@ const Board = ({ authService, database, imageUploader }) => {
             updated[messageId] = changedMessage;
             return updated;
         });
-        database.saveMessage(userId, changedMessage);
+        database.saveMessage(changedMessage);
     });
 
     /**
@@ -230,6 +231,7 @@ const Board = ({ authService, database, imageUploader }) => {
             const rect = dndZoneRef.current.getBoundingClientRect();
             const template = { ...itemTemplate[IMAGE_BOX] };
             template.id = id;
+            template.userId = userId;
             template.x = x - rect.left;
             template.y = y - rect.top;
             template.fileUrl = uploaded.url
@@ -240,7 +242,7 @@ const Board = ({ authService, database, imageUploader }) => {
                 updated[id] = template;
                 return updated;
             });
-            database.saveImage(userId, template);
+            database.saveImage(template);
         } catch (e) {
             console.error(e);
         }
@@ -252,7 +254,7 @@ const Board = ({ authService, database, imageUploader }) => {
             delete updated[imageId];
             return updated;
         });
-        database.removeImage(userId, imageId);
+        database.removeImage(imageId);
     };
 
     const updateImageBox = (imageId, deltaX, deltaY) => {
@@ -264,7 +266,7 @@ const Board = ({ authService, database, imageUploader }) => {
             updated[imageId] = updatedImage;
             return updated;
         });
-        database.saveImage(userId, updatedImage);
+        database.saveImage(updatedImage);
     };
 
     /**
@@ -280,15 +282,15 @@ const Board = ({ authService, database, imageUploader }) => {
         const rect = dndZoneRef.current.getBoundingClientRect();
         const template = { ...itemTemplate[WEBCAM_BOX] };
         template.id = id;
+        template.userId = userId;
         template.x = x - rect.left;
         template.y = y - rect.top;
-        template.userId = userId;
         setWebcam((webcam) => {
             const updated = { ...webcam };
             updated[id] = template;
             return updated;
         });
-        database.saveWebcam(userId, template);
+        database.saveWebcam(template);
     };
 
     const removeWebcamBox = (webcamId) => {
@@ -297,22 +299,27 @@ const Board = ({ authService, database, imageUploader }) => {
             delete updated[webcamId];
             return updated;
         });
-        database.removeWebcam(userId, webcamId);
+        database.removeWebcam(webcamId);
     };
 
     /**
      * Update position and turn the cam on/off
      */
-    const updateWebcam = (webcamId, deltaX, deltaY) => {
-        const x = webcam[webcamId].x + deltaX;
-        const y = webcam[webcamId].y + deltaY;
-        const updatedWebcam = { ...webcam[webcamId], x, y };
+    const updateWebcam = (webcamId, deltaX, deltaY, playing) => {
+        let updatedWebcam;
+        if (deltaX || deltaY) {
+            const x = webcam[webcamId].x + deltaX;
+            const y = webcam[webcamId].y + deltaY;
+            updatedWebcam = { ...webcam[webcamId], x, y };
+        } else {
+            updatedWebcam = { ...webcam[webcamId], playing };
+        }
         setWebcam((webcam) => {
             const updated = { ...webcam };
             updated[webcamId] = updatedWebcam;
             return updated;
         });
-        database.saveWebcam(userId, updatedWebcam);
+        database.saveWebcam(updatedWebcam);
     };
 
     return (
@@ -323,17 +330,15 @@ const Board = ({ authService, database, imageUploader }) => {
         >
             {/**
              * TODO
-             * All draggable itwem has <Draggable>
+             * All draggable items have <Draggable>
              * Why not use DraggableItem wrapper.
              *
              */}
             {Object.keys(messages).map((key) => (
                 <MessageBox
                     key={key}
-                    pressedKey={currKey} //
+                    pressedKey={currKey}
                     message={messages[key]}
-                    // handleMessageClick -> handleBoardClick
-                    // onMessageClick={handleMessageClick}
                     onMessageClick={handleBoardClick}
                     onMessageChange={updateMessageBox}
                 />
@@ -347,18 +352,6 @@ const Board = ({ authService, database, imageUploader }) => {
                     onImageChange={updateImageBox}
                 />
             ))}
-            {/* 
-            /**
-             * User can have one WebcamBox.
-             * {
-             *  webcam: {
-             *      id: userId,
-             *      x,
-             *      y,
-             *      playing
-             *  }  
-             * }
-            */}
             {Object.keys(webcam).map((key) => (
                 <WebcamBox
                     key={key}
