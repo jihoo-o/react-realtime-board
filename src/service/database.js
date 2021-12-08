@@ -20,6 +20,10 @@ class Database {
         set(ref(this.db, `webcam/${webcam.id}`), webcam);
     }
 
+    saveGame(game) {
+        set(ref(this.db, `games/${game.id}`), game);
+    }
+
     getMessage(onUpdate) {
         onValue(ref(this.db, `messages`), (snapshot) => {
             const messages = snapshot.val();
@@ -41,6 +45,13 @@ class Database {
         });
     }
 
+    getGames(onUpdate) {
+        onValue(ref(this.db, `games`), (snapshot) => {
+            const game = snapshot.val();
+            game ? onUpdate(game) : onUpdate({});
+        });
+    }
+
     removeMessage(messageId) {
         remove(ref(this.db, `messages/${messageId}`));
     }
@@ -51,6 +62,10 @@ class Database {
 
     removeWebcam(webcamId) {
         remove(ref(this.db, `webcam/${webcamId}`));
+    }
+
+    removeGame(gameId) {
+        remove(ref(this.db, `games/${gameId}`));
     }
 }
 

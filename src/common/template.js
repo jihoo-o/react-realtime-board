@@ -26,4 +26,11 @@ export const itemTemplate = {
         y: null,
         playing: false,
     },
+    GAME_BOX: {
+        id: null,
+        userId: null,
+        x: null,
+        y: null,
+        game: null,
+    },
 };

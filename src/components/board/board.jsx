@@ -4,8 +4,16 @@ import MessageBox from '../message_box/message_box';
 import ImageBox from 'components/image_box/image_box';
 import styles from './board.module.css';
 import { itemTemplate } from 'common/template';
-import { BOARD, IMAGE_BOX, MESSAGE_BOX, WEBCAM_BOX } from 'common/constants';
+import {
+    BOARD,
+    GAME_BOX,
+    IMAGE_BOX,
+    MESSAGE_BOX,
+    WEBCAM_BOX,
+} from 'common/constants';
 import WebcamBox from 'components/webcam_box/webcam_box';
+import GameBox from 'components/game_box/game_box';
+import Notch from 'components/notch/notch';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
@@ -15,7 +23,8 @@ const Board = ({ authService, database, imageUploader }) => {
     const [userId, setUserId] = useState(location.state && location.state.id);
     const [messages, setMessages] = useState({});
     const [images, setImages] = useState({});
-    const [webcam, setWebcam] = useState({}); // null
+    const [webcam, setWebcam] = useState({});
+    const [games, setGames] = useState({});
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -33,6 +42,9 @@ const Board = ({ authService, database, imageUploader }) => {
                     });
                     database.getWebcam((webcam) => {
                         setWebcam((state) => webcam);
+                    });
+                    database.getGames((game) => {
+                        setGames((state) => game);
                     });
                 }
             });
@@ -122,24 +134,11 @@ const Board = ({ authService, database, imageUploader }) => {
          * Meta -> delete clicked item
          * m -> create MessageBox
          * i -> create ImageBox
-         * d -> create DrawingBox ---> expected
-         * w -> create WebcamBox ---> expected
+         * d -> create DrawingBox
+         * w -> create WebcamBox
          * v -> create VideoBox ---> expected
-         * g -> create GameBox ---> expected
+         * g -> create GameBox
          */
-
-        // if (currKey === 'm') {
-        //     addMessageBox(clickEvent.clientX, clickEvent.clientY);
-        // } else if (currKey === 'i') {
-        //     addImageBox();
-        // } else if (currKey === 'Meta') {
-        //     if (itemType === MESSAGE_BOX) {
-        //         removeMessageBox(clickEvent.target.id);
-        //     }
-        //     if (itemType === IMAGE_BOX) {
-        //         removeImageBox(clickEvent.target.id);
-        //     }
-        // }
 
         /**
          * BUG
@@ -151,10 +150,13 @@ const Board = ({ authService, database, imageUploader }) => {
                 addMessageBox(clickEvent.clientX, clickEvent.clientY);
                 break;
             case 'i':
-                addImageBox(); // ---> expected
+                addImageBox(); // ---> expected: uploading a picture using a widget
                 break;
             case 'w':
                 addWebcamBox(clickEvent.clientX, clickEvent.clientY);
+                break;
+            case 'g':
+                addGameBox(clickEvent.clientX, clickEvent.clientY);
                 break;
             case 'Meta':
                 if (itemType === MESSAGE_BOX) {
@@ -302,9 +304,6 @@ const Board = ({ authService, database, imageUploader }) => {
         database.removeWebcam(webcamId);
     };
 
-    /**
-     * Update position and turn the cam on/off
-     */
     const updateWebcam = (webcamId, deltaX, deltaY, playing) => {
         let updatedWebcam;
         if (deltaX || deltaY) {
@@ -320,6 +319,52 @@ const Board = ({ authService, database, imageUploader }) => {
             return updated;
         });
         database.saveWebcam(updatedWebcam);
+    };
+
+    /**
+     * GameBox
+     * ⬇️
+     */
+    const addGameBox = () => {
+        /**
+         * TODO
+         * show loading spinner until game is selected
+         */
+
+        /**
+         * BUG
+         * window.alert will ignore keyup event.
+         * After closing the alert, click the board again, It appears that the pressed key is still active.
+         */
+        if (Object.keys(games).length > 0) {
+            window.alert('하나의 게임만 실행할 수 있습니다!'); // ----> expected to allow more games
+            return;
+        }
+        // const rect = dndZoneRef.current.getBoundingClientRect();
+        const id = Date.now();
+        const template = { ...itemTemplate[GAME_BOX] };
+        template.id = id;
+        template.userId = userId;
+        // template.x = x - rect.left;
+        // template.y = y - rect.top;
+        setGames((games) => {
+            const updated = { ...games };
+            updated[id] = template;
+            return updated;
+        });
+        database.saveGame(template);
+    };
+
+    const updateGame = (gameId, selectedGame) => {
+        // console.log(selectedGame);
+        const game = selectedGame;
+        const updatedGame = { ...games[gameId], game };
+        setGames((games) => {
+            const updated = { ...games };
+            updated[gameId] = updatedGame;
+            return updated;
+        });
+        database.saveGame(updatedGame);
     };
 
     return (
@@ -361,6 +406,24 @@ const Board = ({ authService, database, imageUploader }) => {
                     onWebcamClick={handleBoardClick}
                     onWebcamChange={updateWebcam}
                 />
+            ))}
+            {/* 
+            /**
+             * make a notch
+            */}
+            {Object.keys(games).map((key) => (
+                <Notch key={key}>
+                    <GameBox
+                        // key={key}
+                        pressedKey={currKey}
+                        game={games[key]}
+                        onGameChange={updateGame}
+                        // userId={userId}
+                        // webcam={webcam[key]}
+                        // onWebcamClick={handleBoardClick}
+                        // onWebcamChange={updateWebcam}
+                    />
+                </Notch>
             ))}
         </div>
     );

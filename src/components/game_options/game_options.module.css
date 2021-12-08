@@ -1,0 +1,62 @@
+@value primaryWhite from '../../common/colors.css';
+
+.modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dialog {
+    width: 70vw;
+    max-width: 50rem;
+    border-radius: 1rem;
+    background-color: primaryWhite;
+    padding: 0 2rem;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    padding-left: 0;
+}
+
+.game {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.gameTitle {
+    font-size: 1.2em;
+    margin-bottom: 0.5rem;
+}
+
+.gameImg {
+    width: 200px;
+    height: 130px;
+    border-radius: 0.5em;
+    opacity: 0.7;
+}
+
+.gameImg:hover {
+    cursor: pointer;
+    opacity: 1;
+}
+
+@media screen and (max-width: 940px) {
+    .options {
+        flex-direction: column;
+    }
+
+    .game:not(:last-child) {
+        padding-bottom: 2rem;
+    }
+}
