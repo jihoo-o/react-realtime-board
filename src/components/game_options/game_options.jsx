@@ -9,14 +9,14 @@ import GameLinks, {
     SHELLSHOCKERS,
 } from '../../common/constants.js';
 
-/**
- * TODO
- * can close it without selecting one
- */
-
 const GameOptions = ({ getSelectedGame }) => {
     return (
-        <div className={styles.modal}>
+        <div
+            className={styles.modal}
+            onClick={(e) => {
+                getSelectedGame(null);
+            }}
+        >
             <div className={styles.dialog}>
                 <ul className={styles.options}>
                     <li className={styles.game}>
@@ -28,6 +28,7 @@ const GameOptions = ({ getSelectedGame }) => {
                             alt=""
                             onClick={(e) => {
                                 getSelectedGame(e.target.id);
+                                e.stopPropagation();
                             }}
                         />
                     </li>
@@ -42,6 +43,7 @@ const GameOptions = ({ getSelectedGame }) => {
                             alt=""
                             onClick={(e) => {
                                 getSelectedGame(e.target.id);
+                                e.stopPropagation();
                             }}
                         />
                     </li>
@@ -54,6 +56,7 @@ const GameOptions = ({ getSelectedGame }) => {
                             alt=""
                             onClick={(e) => {
                                 getSelectedGame(e.target.id);
+                                e.stopPropagation();
                             }}
                         />
                     </li>

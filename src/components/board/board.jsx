@@ -13,7 +13,6 @@ import {
 } from 'common/constants';
 import WebcamBox from 'components/webcam_box/webcam_box';
 import GameBox from 'components/game_box/game_box';
-import Notch from 'components/notch/notch';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
@@ -356,7 +355,10 @@ const Board = ({ authService, database, imageUploader }) => {
     };
 
     const updateGame = (gameId, selectedGame) => {
-        // console.log(selectedGame);
+        if (!selectedGame) {
+            removeGame(gameId);
+            return;
+        }
         const game = selectedGame;
         const updatedGame = { ...games[gameId], game };
         setGames((games) => {
@@ -365,6 +367,15 @@ const Board = ({ authService, database, imageUploader }) => {
             return updated;
         });
         database.saveGame(updatedGame);
+    };
+
+    const removeGame = (gameId) => {
+        setGames((games) => {
+            const updated = { ...games };
+            delete updated[gameId];
+            return updated;
+        });
+        database.removeGame(gameId);
     };
 
     return (

@@ -1,11 +1,19 @@
 import { gameLinks } from 'common/constants';
 import GameOptions from 'components/game_options/game_options';
 import React from 'react';
-import { useRef } from 'react/cjs/react.development';
+import { useEffect, useRef, useState } from 'react/cjs/react.development';
 import styles from './game_box.module.css';
 
 const GameBox = ({ userId, pressedKey, game, onGameChange }) => {
     const iframeRef = useRef();
+    const [modal, setModal] = useState(false);
+
+    useEffect(() => {
+        if (!game.game && userId === game.userId) {
+            setModal(true);
+        }
+    }, [game.id]);
+
     /**
      * TODO
      * responsive
@@ -20,10 +28,11 @@ const GameBox = ({ userId, pressedKey, game, onGameChange }) => {
                     src={gameLinks[game.game]}
                     // sandbox=""
                 ></iframe>
-            ) : userId === game.userId ? (
+            ) : modal ? (
                 <GameOptions
                     getSelectedGame={(selectedGame) => {
                         onGameChange(game.id, selectedGame);
+                        setModal(false);
                     }}
                 />
             ) : (
