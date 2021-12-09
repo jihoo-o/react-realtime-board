@@ -407,23 +407,14 @@ const Board = ({ authService, database, imageUploader }) => {
                     onWebcamChange={updateWebcam}
                 />
             ))}
-            {/* 
-            /**
-             * make a notch
-            */}
             {Object.keys(games).map((key) => (
-                <Notch key={key}>
-                    <GameBox
-                        // key={key}
-                        pressedKey={currKey}
-                        game={games[key]}
-                        onGameChange={updateGame}
-                        // userId={userId}
-                        // webcam={webcam[key]}
-                        // onWebcamClick={handleBoardClick}
-                        // onWebcamChange={updateWebcam}
-                    />
-                </Notch>
+                <GameBox
+                    key={key}
+                    userId={userId}
+                    pressedKey={currKey}
+                    game={games[key]}
+                    onGameChange={updateGame}
+                />
             ))}
         </div>
     );

@@ -11,7 +11,7 @@ import GameLinks, {
 
 /**
  * TODO
- * Close it without selecting one
+ * can close it without selecting one
  */
 
 const GameOptions = ({ getSelectedGame }) => {

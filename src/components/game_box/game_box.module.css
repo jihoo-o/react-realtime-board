@@ -1,12 +1,25 @@
-.gameBoxWrapper {
-    position: relative;
-    width: 100%;
-    padding-bottom: 56.25%;
-}
-
 .gameBox {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
     border: none;
+    border-radius: 0 0 1rem 1rem;
+
+    width: 75vw;
+    height: 37vw;
+    margin-left: 22vw;
+
+    -moz-transform: scale(0.75, 0.75);
+    -webkit-transform: scale(0.75, 0.75);
+    -o-transform: scale(0.75, 0.75);
+    -ms-transform: scale(0.75, 0.75);
+    transform: scale(0.75, 0.75);
+    -moz-transform-origin: top left;
+    -webkit-transform-origin: top left;
+    -o-transform-origin: top left;
+    -ms-transform-origin: top left;
+    transform-origin: top left;
 }
