@@ -1,0 +1,13 @@
+.meta {
+    cursor: url('../../images/outline_delete_black_24dp.png'), auto;
+}
+.alt {
+    cursor: grab;
+}
+.dragging {
+    cursor: grabbing;
+}
+
+.autoCursor {
+    cursor: auto;
+}

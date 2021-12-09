@@ -13,6 +13,7 @@ import {
 } from 'common/constants';
 import WebcamBox from 'components/webcam_box/webcam_box';
 import GameBox from 'components/game_box/game_box';
+import BoxWrapper from 'components/box_wrapper/box_wrapper';
 
 const Board = ({ authService, database, imageUploader }) => {
     const dndZoneRef = useRef();
@@ -427,6 +428,23 @@ const Board = ({ authService, database, imageUploader }) => {
                     onGameChange={updateGame}
                 />
             ))}
+            {
+                <BoxWrapper
+                    pressedKey={currKey}
+                    updatePosition={updateMessageBox}
+                >
+                    <div
+                        id="helsinki"
+                        style={{
+                            width: '100px',
+                            height: '100px',
+                            backgroundColor: 'red',
+                        }}
+                    >
+                        tmp
+                    </div>
+                </BoxWrapper>
+            }
         </div>
     );
 };
