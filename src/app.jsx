@@ -8,7 +8,7 @@ import Board from './components/board/board';
 function App({ authService, database, imageUploader }) {
     return (
         <div className={styles.appContainer}>
-            <BrowserRouter>
+            <BrowserRouter basename={process.env.PUBLIC_URL}>
                 <Routes>
                     <Route
                         path="/"
