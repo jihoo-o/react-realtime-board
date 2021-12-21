@@ -1,6 +1,6 @@
 import { WEBCAM_BOX } from 'common/constants';
 import WebcamController from 'components/webcam_controller/webcam_controller';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Draggable from 'react-draggable';
 import Webcam from 'react-webcam';
 import styles from './webcam_box.module.css';
@@ -17,6 +17,7 @@ const WebcamBox = ({
     onWebcamClick,
     onWebcamChange,
 }) => {
+    const nodeRef = useRef();
     const [itemType, setItemType] = useState(WEBCAM_BOX);
     const [mouseEnter, setMouseEnter] = useState(false);
     const [dragging, setDragging] = useState(false);
@@ -33,6 +34,7 @@ const WebcamBox = ({
 
     return (
         <Draggable
+            nodeRef={nodeRef}
             axis="both"
             bounds="parent"
             position={{ x: 0, y: 0 }}

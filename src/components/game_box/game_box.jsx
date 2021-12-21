@@ -1,7 +1,6 @@
 import { gameLinks } from 'common/constants';
 import GameOptions from 'components/game_options/game_options';
-import React from 'react';
-import { useEffect, useRef, useState } from 'react/cjs/react.development';
+import React, { useEffect, useState, useRef } from 'react';
 import styles from './game_box.module.css';
 
 const GameBox = ({ userId, pressedKey, game, onGameChange }) => {

@@ -10,12 +10,14 @@ const cursorStyle = {
 
 const ImageBox = ({ pressedKey, img, onImageClick, onImageChange }) => {
     const imgRef = useRef();
+    const nodeRef = useRef();
     const [itemType, setItemType] = useState(IMAGE_BOX);
     const [mouseEnter, setMouseEnter] = useState(false);
     const [dragging, setDragging] = useState(false);
 
     return (
         <Draggable
+            nodeRef={nodeRef}
             axis="both"
             bounds="parent"
             position={{ x: 0, y: 0 }}

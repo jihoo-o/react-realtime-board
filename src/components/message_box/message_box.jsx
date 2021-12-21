@@ -21,6 +21,7 @@ const MessageBox = ({
     onMessageChange,
 }) => {
     const inputRef = useRef();
+    const nodeRef = useRef();
     const [itemType, setItemType] = useState(MESSAGE_BOX);
     const [mouseEnter, setMouseEnter] = useState(false);
     const [dragging, setDragging] = useState(false);
@@ -32,6 +33,7 @@ const MessageBox = ({
 
     return (
         <Draggable
+            nodeRef={nodeRef}
             axis="both"
             bounds="parent"
             position={{ x: 0, y: 0 }}

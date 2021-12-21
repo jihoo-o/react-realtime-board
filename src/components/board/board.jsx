@@ -34,16 +34,20 @@ const Board = ({ authService, database, imageUploader }) => {
                 } else {
                     setUserId(user.uid);
                     database.getMessage((messages) => {
-                        setMessages((satate) => messages);
+                        // setMessages((satate) => messages);
+                        setMessages(messages);
                     });
                     database.getImages((images) => {
-                        setImages((state) => images);
+                        // setImages((state) => images);
+                        setImages(images);
                     });
                     database.getWebcam((webcam) => {
-                        setWebcam((state) => webcam);
+                        // setWebcam((state) => webcam);
+                        setWebcam(webcam);
                     });
                     database.getGames((game) => {
-                        setGames((state) => game);
+                        // setGames((state) => game);
+                        setGames(game);
                     });
                 }
             });
