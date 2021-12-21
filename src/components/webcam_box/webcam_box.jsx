@@ -18,6 +18,7 @@ const WebcamBox = ({
     onWebcamChange,
 }) => {
     const nodeRef = useRef();
+    const [deviceId, setDeviceId] = useState(null);
     const [itemType, setItemType] = useState(WEBCAM_BOX);
     const [mouseEnter, setMouseEnter] = useState(false);
     const [dragging, setDragging] = useState(false);
@@ -27,9 +28,24 @@ const WebcamBox = ({
         handleWebcamChange(false);
     }, []);
 
+    useEffect(() => {
+        navigator.mediaDevices.enumerateDevices().then(handleDevice);
+    }, []);
+
     const handleWebcamChange = (isPlaying) => {
         setCamOn(isPlaying);
         onWebcamChange(webcam.id, null, null, isPlaying);
+    };
+
+    const handleDevice = (mediaDevices) => {
+        webcam.userId === userId
+            ? mediaDevices.forEach(({ kind, deviceId }) => {
+                  if (kind === 'videoinput') {
+                      setDeviceId(deviceId);
+                  }
+              })
+            : setDeviceId(null);
+        console.log('deviceId' + deviceId);
     };
 
     return (
@@ -102,6 +118,7 @@ const WebcamBox = ({
                             videoConstraints={{
                                 width: 200,
                                 height: 200,
+                                deviceId,
                                 // facingMode: "user" // front camera on mobile
                             }}
                         />
